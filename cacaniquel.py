@@ -1,44 +1,66 @@
 import random
 import time
-import keyboard
 
 simbolos = ['🎃', '🤑', '🐯', '🍀', '💎']
-resultado = ["","",""] 
 saldo = 100
 
-
 def jogar():
-    # girar roleta
-    for i in range(3):
-        resul = [random.choice(simbolos) for _ in range(3)] 
-        print(resul[0] + ' | ' + resul[1] + ' | ' + resul[2])
-        time.sleep(0.2)
-        if keyboard.is_pressed('q'):
-            print("\nJogo encerrado. Obrigado por jogar!")
-            exit()
+    print("\nGirando...")
+    for _ in range(15):
+        animacao = [random.choice(simbolos) for _ in range(3)]
+        print(f"\r{' | '.join(animacao)}", end="", flush=True)
+        time.sleep(0.1)
 
-    for i in range(3):
-        resultado[i] = random.choice(simbolos)
-        
+    print("\n" + "=" * 15)
 
-def calcular_ganho():
-    aposta = int(input("Digite o valor da sua aposta (entre 0 e 100): "))
-    if 1 <= aposta <= 1000:
+    resultado = [random.choice(simbolos) for _ in range(3)]
+    print(f"{' | '.join(resultado)}")
+    print("=" * 15)
+
+    return resultado
+
+def fazer_aposta():
+    while True:
+        try:
+            aposta = int(input(f"Seu saldo atual é de ${saldo}. Digite o valor da sua aposta: "))
+            if aposta > saldo:
+                print("Você não tem saldo suficiente para esta aposta. Tente novamente.")
+            elif aposta <= 0:
+                print("A aposta deve ser um valor positivo. Tente novamente.")
+            else:
+                return aposta
+        except ValueError:
+            print("Entrada inválida. Por favor, digite um número.")
+
+def main():
+    """The main game loop."""
+    global saldo
+    print("Bem-vindo à Roleta de Símbolos!")
+    
+    while True:
+        if saldo <= 0:
+            print("Seu saldo acabou. Fim de jogo!")
+            break
+
+        aposta = fazer_aposta()
+        saldo -= aposta
         
-        return aposta
-    else:
-        print("O valor informado é inválido.")
-        exit()
+        resultado = jogar()
+        
+        # Check for a win
+        if resultado[0] == resultado[1] == resultado[2]:
+            ganho = aposta * 10
+            saldo += ganho
+            print(f"🎉 Parabéns! Você acertou! Você ganhou ${ganho}!")
+        else:
+            print("😞 Que pena! Você perdeu esta rodada.")
+        
+        print(f"Seu saldo final é: ${saldo}\n")
+        
+        jogar_novamente = input("Quer jogar novamente? (s/n): ").lower()
+        if jogar_novamente != 's':
+            print("Obrigado por jogar! Até a próxima.")
+            break
 
 if __name__ == "__main__":
-    aposta = calcular_ganho()
-    jogar()
-    print(' | '.join(resultado))
-    if resultado[0] == resultado[1] == resultado[2]:
-        ganho = aposta * 10
-        print(f'Parabéns! Você ganhou {ganho}!')
-    else:
-        print('Que pena! Você perdeu sua aposta.')
-        ganho = aposta - 5
-        5
-        print(f'Seu saldo final é: {ganho}')
+    main()
